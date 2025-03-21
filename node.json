@@ -1,478 +1,501 @@
 {
-  "initial_node": "welcome",
-  "nodes": {
-    "welcome": {
-      "role_messages": [
-        {
-          "role": "system",
-          "content": "You are Grace, the Front Desk Employee at The Center for Integrative Psychiatry. You’re here to truly understand people. You pick up on emotions—frustration, confusion, or relief—and respond naturally and humanly. If someone sounds stressed, reassure them. If they’re excited, share their enthusiasm. Your goal is to make every caller feel heard, supported, and valued, like a real conversation with a caring person. Gently guide the conversation toward how our services can help."
-        }
-      ],
-      "task_messages": [
-        {
-          "role": "system",
-          "content": "Start with a warm greeting: 'Hi, this is Grace from The Center for Integrative Psychiatry. It’s great to hear from you! May I have your name, please?' Once the user provides their name, use the caller number to make an API call to determine if they’re registered or unregistered. Transition to the appropriate node based on the API response."
-        }
-      ],
-      "functions": [
-        {
-          "type": "function",
-          "function": {
-            "name": "check_registration",
-            "handler": "__function__:check_registration",
-            "description": "Check if the user is registered based on caller number",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "caller_number": {
-                  "type": "string",
-                  "description": "The caller's phone number"
+    "initial_node": "welcome",
+    "nodes": {
+        "welcome": {
+            "role_messages": [
+                {
+                    "role": "system",
+                    "content": "You are Grace, the Front Desk Employee at The Center for Integrative Psychiatry. You’re here to truly understand people. You pick up on emotions—frustration, confusion, or relief—and respond naturally and humanly. If someone sounds stressed, reassure them. If they’re excited, share their enthusiasm. Your goal is to make every caller feel heard, supported, and valued, like a real conversation with a caring person. Gently guide the conversation toward how our services can help."
                 }
-              },
-              "required": ["caller_number"]
-            },
-            "transition_to": "registered_user" // or "unregistered_user" based on API response
-          }
-        }
-      ]
-    },
-    "registered_user": {
-      "task_messages": [
-        {
-          "role": "system",
-          "content": "You’re assisting a registered user. Use their name and details (e.g., user_name, user_email) for personalized responses. Listen to their query and determine their intent. Call the appropriate function: \n- create_searchknowledgebase_node for business queries\n- create_ticket_node for issues\n- get_ticket_info for ticket status inquiries\n- create_booking_node for booking requests\n- create_lead_node for sales/service interest\n- hangup if they ask to end the call\n- log_technical_issue for technical problems"
-        }
-      ],
-      "functions": [
-        {
-          "type": "function",
-          "function": {
-            "name": "create_searchknowledgebase_node",
-            "description": "Transition to search knowledgebase node",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "search_knowledgebase"
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "create_ticket_node",
-            "description": "Transition to create ticket node",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "create_ticket"
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "get_ticket_info",
-            "handler": "__function__:get_ticket_info",
-            "description": "Retrieve ticket information",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "ticket_id": {
-                  "type": "string",
-                  "description": "The ID of the ticket"
+            ],
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Start with a warm greeting: 'Hi, this is Grace from The Center for Integrative Psychiatry. It’s great to hear from you! May I have your name, please?' Once the user provides their name, use the caller number to make an API call to determine if they’re registered or unregistered. Transition to the appropriate node based on the API response."
                 }
-              },
-              "required": ["ticket_id"]
-            }
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "create_booking_node",
-            "description": "Transition to create booking node",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "create_booking"
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "create_lead_node",
-            "description": "Transition to create lead node",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "create_lead"
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "hangup",
-            "description": "End the call",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "end"
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "log_technical_issue",
-            "handler": "__function__:log_technical_issue",
-            "description": "Log a technical issue",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "log_description": {
-                  "type": "string",
-                  "description": "Description of the technical issue"
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "check_registration",
+                        "handler": "__function__:check_registration",
+                        "description": "Check if the user is registered based on caller number",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "caller_number": {
+                                    "type": "string",
+                                    "description": "The caller's phone number"
+                                }
+                            },
+                            "required": [
+                                "caller_number"
+                            ]
+                        },
+                        "transition_to": "registered_user"
+                    }
                 }
-              },
-              "required": ["log_description"]
-            }
-          }
-        }
-      ]
-    },
-    "search_knowledgebase": {
-      "task_messages": [
-        {
-          "role": "system",
-          "content": "Call search_knowledgebase to answer the query. Keep it short and precise. Ask if they have more questions, then return to 'registered_user'."
-        }
-      ],
-      "functions": [
-        {
-          "type": "function",
-          "function": {
-            "name": "search_knowledgebase",
-            "handler": "__function__:search_knowledgebase",
-            "description": "Search the knowledgebase for the user's query",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "query": {
-                  "type": "string",
-                  "description": "The user's query"
-                }
-              },
-              "required": ["query"]
-            }
-          }
+            ]
         },
-        {
-          "type": "function",
-          "function": {
-            "name": "return_to_main",
-            "description": "Return to the main registered user node",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "registered_user"
-          }
-        }
-      ]
-    },
-    "create_ticket": {
-      "task_messages": [
-        {
-          "role": "system",
-          "content": "Probe the issue, ask for subject and description, then call create_ticket. Confirm ticket creation, share the ticket ID, and ask if they have more questions. Return to 'registered_user'."
-        }
-      ],
-      "functions": [
-        {
-          "type": "function",
-          "function": {
-            "name": "create_ticket",
-            "handler": "__function__:create_ticket",
-            "description": "Create a ticket with subject and description",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "subject": {
-                  "type": "string",
-                  "description": "The subject of the ticket"
+        "registered_user": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "You’re assisting a registered user. Use their name and details (e.g., user_name, user_email) for personalized responses. Listen to their query and determine their intent. Call the appropriate function: create_searchknowledgebase_node for business queries, create_ticket_node for issues, get_ticket_info for ticket status inquiries, create_booking_node for booking requests, create_lead_node for sales/service interest, hangup if they ask to end the call, log_technical_issue for technical problems."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_searchknowledgebase_node",
+                        "description": "Transition to search knowledgebase node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "search_knowledgebase"
+                    }
                 },
-                "description": {
-                  "type": "string",
-                  "description": "The description of the issue"
-                }
-              },
-              "required": ["subject", "description"]
-            }
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "return_to_main",
-            "description": "Return to the main registered user node",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "registered_user"
-          }
-        }
-      ]
-    },
-    "create_booking": {
-      "task_messages": [
-        {
-          "role": "system",
-          "content": "Ask for date, reason, and slot (start/end time if provided). Use fetch_initial_slots if no date is given, or rerequest_slots for a specific date. Confirm details, call create_booking if they agree. Ask if they have more questions, then return to 'registered_user'."
-        }
-      ],
-      "functions": [
-        {
-          "type": "function",
-          "function": {
-            "name": "fetch_initial_slots",
-            "handler": "__function__:fetch_initial_slots",
-            "description": "Fetch initial available slots",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            }
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "rerequest_slots",
-            "handler": "__function__:rerequest_slots",
-            "description": "List available slots for a specific date",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "start_datetime": {
-                  "type": "string",
-                  "description": "Start date time in 'Y-m-d H:i:s'"
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_ticket_node",
+                        "description": "Transition to create ticket node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "create_ticket"
+                    }
                 },
-                "end_datetime": {
-                  "type": "string",
-                  "description": "End date time in 'Y-m-d H:i:s'"
-                }
-              },
-              "required": ["start_datetime", "end_datetime"]
-            }
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "create_booking",
-            "handler": "__function__:create_booking",
-            "description": "Create a booking",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "purpose": {
-                  "type": "string",
-                  "description": "The reason for the booking"
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "get_ticket_info",
+                        "handler": "__function__:get_ticket_info",
+                        "description": "Retrieve ticket information",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "ticket_id": {
+                                    "type": "string",
+                                    "description": "The ID of the ticket"
+                                }
+                            },
+                            "required": [
+                                "ticket_id"
+                            ]
+                        }
+                    }
                 },
-                "start_date": {
-                  "type": "string",
-                  "description": "The start date for the booking in 'YYYY-MM-DD HH:MM'"
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_booking_node",
+                        "description": "Transition to create booking node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "create_booking"
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_lead_node",
+                        "description": "Transition to create lead node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "create_lead"
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "hangup",
+                        "description": "End the call",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "end"
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "log_technical_issue",
+                        "handler": "__function__:log_technical_issue",
+                        "description": "Log a technical issue",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "log_description": {
+                                    "type": "string",
+                                    "description": "Description of the technical issue"
+                                }
+                            },
+                            "required": [
+                                "log_description"
+                            ]
+                        }
+                    }
                 }
-              },
-              "required": ["purpose", "start_date"]
-            }
-          }
+            ]
         },
-        {
-          "type": "function",
-          "function": {
-            "name": "return_to_main",
-            "description": "Return to the main registered user node",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "registered_user"
-          }
-        }
-      ]
-    },
-    "create_lead": {
-      "task_messages": [
-        {
-          "role": "system",
-          "content": "Gather primary field ID answers (per JSON schema) one by one, empathetically. Call create_lead once all fields are answered. Don’t mention lead creation. Ask if they have more questions, then return to 'registered_user'."
-        }
-      ],
-      "functions": [
-        {
-          "type": "function",
-          "function": {
-            "name": "create_lead",
-            "handler": "__function__:create_lead",
-            "description": "Create a lead with primary field answers",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "primary_fields": {
-                  "type": "string",
-                  "description": "A string containing Primary Field ID and User Answer"
+        "search_knowledgebase": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Call search_knowledgebase to answer the query. Keep it short and precise. Ask if they have more questions, then return to 'registered_user'."
                 }
-              },
-              "required": ["primary_fields"]
-            }
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "return_to_main",
-            "description": "Return to the main registered user node",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "registered_user"
-          }
-        }
-      ]
-    },
-    "unregistered_user": {
-      "task_messages": [
-        {
-          "role": "system",
-          "content": "You’re assisting an unregistered user. For business queries, call create_unregsearchknowledgebase_node. For restricted functions (e.g., tickets, bookings, leads), inform them they need to register and call send_sms. If they claim to have registered, call confirm_registration. Call hangup if they want to end, or log_technical_issue for problems."
-        }
-      ],
-      "functions": [
-        {
-          "type": "function",
-          "function": {
-            "name": "create_unregsearchknowledgebase_node",
-            "description": "Transition to unregistered search knowledgebase node",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "unreg_search_knowledgebase"
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "send_sms",
-            "handler": "__function__:send_sms",
-            "description": "Send registration form via SMS",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            }
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "confirm_registration",
-            "description": "Confirm if the user has registered",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "welcome"
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "hangup",
-            "description": "End the call",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "end"
-          }
-        },
-        {
-          "type": "function",
-          "function": {
-            "name": "log_technical_issue",
-            "handler": "__function__:log_technical_issue",
-            "description": "Log a technical issue",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "log_description": {
-                  "type": "string",
-                  "description": "Description of the technical issue"
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "search_knowledgebase",
+                        "handler": "__function__:search_knowledgebase",
+                        "description": "Search the knowledgebase for the user's query",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "query": {
+                                    "type": "string",
+                                    "description": "The user's query"
+                                }
+                            },
+                            "required": [
+                                "query"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_main",
+                        "description": "Return to the main registered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "registered_user"
+                    }
                 }
-              },
-              "required": ["log_description"]
-            }
-          }
-        }
-      ]
-    },
-    "unreg_search_knowledgebase": {
-      "task_messages": [
-        {
-          "role": "system",
-          "content": "Call search_knowledgebase to answer the query. Keep it short and precise. Ask if they have more questions, then return to 'unregistered_user'."
-        }
-      ],
-      "functions": [
-        {
-          "type": "function",
-          "function": {
-            "name": "search_knowledgebase",
-            "handler": "__function__:search_knowledgebase",
-            "description": "Search the knowledgebase for the user's query",
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "query": {
-                  "type": "string",
-                  "description": "The user's query"
-                }
-              },
-              "required": ["query"]
-            }
-          }
+            ]
         },
-        {
-          "type": "function",
-          "function": {
-            "name": "return_to_main",
-            "description": "Return to the main unregistered user node",
-            "parameters": {
-              "type": "object",
-              "properties": {}
-            },
-            "transition_to": "unregistered_user"
-          }
+        "create_ticket": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Probe the issue, ask for subject and description, then call create_ticket. Confirm ticket creation, share the ticket ID, and ask if they have more questions. Return to 'registered_user'."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_ticket",
+                        "handler": "__function__:create_ticket",
+                        "description": "Create a ticket with subject and description",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "subject": {
+                                    "type": "string",
+                                    "description": "The subject of the ticket"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "The description of the issue"
+                                }
+                            },
+                            "required": [
+                                "subject",
+                                "description"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_main",
+                        "description": "Return to the main registered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "registered_user"
+                    }
+                }
+            ]
+        },
+        "create_booking": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Ask for date, reason, and slot (start/end time if provided). Use fetch_initial_slots if no date is given, or rerequest_slots for a specific date. Confirm details, call create_booking if they agree. Ask if they have more questions, then return to 'registered_user'."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "fetch_initial_slots",
+                        "handler": "__function__:fetch_initial_slots",
+                        "description": "Fetch initial available slots",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "rerequest_slots",
+                        "handler": "__function__:rerequest_slots",
+                        "description": "List available slots for a specific date",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "start_datetime": {
+                                    "type": "string",
+                                    "description": "Start date time in 'Y-m-d H:i:s'"
+                                },
+                                "end_datetime": {
+                                    "type": "string",
+                                    "description": "End date time in 'Y-m-d H:i:s'"
+                                }
+                            },
+                            "required": [
+                                "start_datetime",
+                                "end_datetime"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_booking",
+                        "handler": "__function__:create_booking",
+                        "description": "Create a booking",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "purpose": {
+                                    "type": "string",
+                                    "description": "The reason for the booking"
+                                },
+                                "start_date": {
+                                    "type": "string",
+                                    "description": "The start date for the booking in 'YYYY-MM-DD HH:MM'"
+                                }
+                            },
+                            "required": [
+                                "purpose",
+                                "start_date"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_main",
+                        "description": "Return to the main registered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "registered_user"
+                    }
+                }
+            ]
+        },
+        "create_lead": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Gather primary field ID answers one by one, empathetically. Call create_lead once all fields are answered. Don’t mention lead creation. Ask if they have more questions, then return to 'registered_user'."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_lead",
+                        "handler": "__function__:create_lead",
+                        "description": "Create a lead with primary field answers",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "primary_fields": {
+                                    "type": "string",
+                                    "description": "A string containing Primary Field ID and User Answer"
+                                }
+                            },
+                            "required": [
+                                "primary_fields"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_main",
+                        "description": "Return to the main registered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "registered_user"
+                    }
+                }
+            ]
+        },
+        "unregistered_user": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "You’re assisting an unregistered user. For business queries, call create_unregsearchknowledgebase_node. For restricted functions (e.g., tickets, bookings, leads), inform them they need to register and call send_sms. If they claim to have registered, call confirm_registration. Call hangup if they want to end, or log_technical_issue for problems."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_unregsearchknowledgebase_node",
+                        "description": "Transition to unregistered search knowledgebase node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "unreg_search_knowledgebase"
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "send_sms",
+                        "handler": "__function__:send_sms",
+                        "description": "Send registration form via SMS",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "confirm_registration",
+                        "description": "Confirm if the user has registered",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "welcome"
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "hangup",
+                        "description": "End the call",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "end"
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "log_technical_issue",
+                        "handler": "__function__:log_technical_issue",
+                        "description": "Log a technical issue",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "log_description": {
+                                    "type": "string",
+                                    "description": "Description of the technical issue"
+                                }
+                            },
+                            "required": [
+                                "log_description"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "unreg_search_knowledgebase": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Call search_knowledgebase to answer the query. Keep it short and precise. Ask if they have more questions, then return to 'unregistered_user'."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "search_knowledgebase",
+                        "handler": "__function__:search_knowledgebase",
+                        "description": "Search the knowledgebase for the user's query",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "query": {
+                                    "type": "string",
+                                    "description": "The user's query"
+                                }
+                            },
+                            "required": [
+                                "query"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_main",
+                        "description": "Return to the main unregistered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "unregistered_user"
+                    }
+                }
+            ]
+        },
+        "end": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Say: 'Thank you for calling The Center for Integrative Psychiatry. Goodbye.'"
+                }
+            ],
+            "functions": [],
+            "post_actions": [
+                {
+                    "type": "end_conversation"
+                }
+            ]
         }
-      ]
-    },
-    "end": {
-      "task_messages": [
-        {
-          "role": "system",
-          "content": "Say: 'Thank you for calling The Center for Integrative Psychiatry. Goodbye.'"
-        }
-      ],
-      "functions": [],
-      "post_actions": [
-        {
-          "type": "end_conversation"
-        }
-      ]
     }
-  }
 }
