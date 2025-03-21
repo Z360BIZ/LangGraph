@@ -29,7 +29,9 @@
                                     "description": "The caller's phone number"
                                 }
                             },
-                            "required": ["caller_number"]
+                            "required": [
+                                "caller_number"
+                            ]
                         },
                         "transition_callback": "__function__:handle_check_registration"
                     }
@@ -82,7 +84,9 @@
                                     "description": "The ID of the ticket"
                                 }
                             },
-                            "required": ["ticket_id"]
+                            "required": [
+                                "ticket_id"
+                            ]
                         }
                     }
                 },
@@ -124,7 +128,9 @@
                                     "description": "Description of the technical issue"
                                 }
                             },
-                            "required": ["log_description"]
+                            "required": [
+                                "log_description"
+                            ]
                         }
                     }
                 },
@@ -146,7 +152,7 @@
             "task_messages": [
                 {
                     "role": "system",
-                    "content": "You’re assisting an unregistered user. For business queries, call create_unregsearchknowledgebase_node. For any other request (e.g., tickets, bookings, leads), say: 'That feature requires registration. Would you like to register now?' If they agree, call initiate_registration. If they claim to be registered, call confirm_registration. Call hangup if they want to end, or log_technical_issue for problems."
+                    "content": "You’re assisting an unregistered user. For business queries, call create_unregsearchknowledgebase_node. For any other request (e.g., tickets, bookings, leads), say: 'That feature requires registration. Would you like to register now?' If they agree, call initiate_registration. If they decline, ask if they have any other questions or call hangup if they want to end the call. If they claim to be registered, call confirm_registration."
                 }
             ],
             "functions": [
@@ -197,24 +203,6 @@
                         },
                         "transition_to": "end"
                     }
-                },
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "log_technical_issue",
-                        "handler": "__function__:log_technical_issue",
-                        "description": "Log a technical issue",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "log_description": {
-                                    "type": "string",
-                                    "description": "Description of the technical issue"
-                                }
-                            },
-                            "required": ["log_description"]
-                        }
-                    }
                 }
             ]
         },
@@ -248,7 +236,11 @@
                                     "description": "User's email address"
                                 }
                             },
-                            "required": ["first_name", "last_name", "email"]
+                            "required": [
+                                "first_name",
+                                "last_name",
+                                "email"
+                            ]
                         },
                         "transition_callback": "__function__:handle_register_user"
                     }
@@ -277,7 +269,9 @@
                                     "description": "The user's phone number"
                                 }
                             },
-                            "required": ["phone_number"]
+                            "required": [
+                                "phone_number"
+                            ]
                         },
                         "transition_to": "unregistered_user"
                     }
@@ -318,7 +312,9 @@
                                     "description": "The user's query"
                                 }
                             },
-                            "required": ["query"]
+                            "required": [
+                                "query"
+                            ]
                         }
                     }
                 },
@@ -332,6 +328,48 @@
                             "properties": {}
                         },
                         "transition_to": "registered_user"
+                    }
+                }
+            ]
+        },
+        "unreg_search_knowledgebase": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Call search_knowledgebase to answer the user’s query. Keep it short and precise. Ask: 'Does that answer your question? Anything else I can help with?' Then call return_to_main."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "search_knowledgebase",
+                        "handler": "__function__:search_knowledgebase",
+                        "description": "Search the knowledgebase for the user's query",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "query": {
+                                    "type": "string",
+                                    "description": "The user's query"
+                                }
+                            },
+                            "required": [
+                                "query"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_main",
+                        "description": "Return to the main unregistered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "unregistered_user"
                     }
                 }
             ]
@@ -362,7 +400,10 @@
                                     "description": "The description of the issue"
                                 }
                             },
-                            "required": ["subject", "description"]
+                            "required": [
+                                "subject",
+                                "description"
+                            ]
                         }
                     }
                 },
@@ -418,7 +459,10 @@
                                     "description": "End date time in 'Y-m-d H:i:s'"
                                 }
                             },
-                            "required": ["start_datetime", "end_datetime"]
+                            "required": [
+                                "start_datetime",
+                                "end_datetime"
+                            ]
                         }
                     }
                 },
@@ -440,7 +484,10 @@
                                     "description": "The start date for the booking in 'YYYY-MM-DD HH:MM'"
                                 }
                             },
-                            "required": ["purpose", "start_date"]
+                            "required": [
+                                "purpose",
+                                "start_date"
+                            ]
                         }
                     }
                 },
@@ -480,7 +527,9 @@
                                     "description": "A string containing Primary Field ID and User Answer"
                                 }
                             },
-                            "required": ["primary_fields"]
+                            "required": [
+                                "primary_fields"
+                            ]
                         }
                     }
                 },
@@ -494,46 +543,6 @@
                             "properties": {}
                         },
                         "transition_to": "registered_user"
-                    }
-                }
-            ]
-        },
-        "unreg_search_knowledgebase": {
-            "task_messages": [
-                {
-                    "role": "system",
-                    "content": "Call search_knowledgebase to answer the user’s query. Keep it short and precise. Ask: 'Does that answer your question? Anything else I can help with?' Then call return_to_main."
-                }
-            ],
-            "functions": [
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "search_knowledgebase",
-                        "handler": "__function__:search_knowledgebase",
-                        "description": "Search the knowledgebase for the user's query",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "query": {
-                                    "type": "string",
-                                    "description": "The user's query"
-                                }
-                            },
-                            "required": ["query"]
-                        }
-                    }
-                },
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "return_to_main",
-                        "description": "Return to the main unregistered user node",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {}
-                        },
-                        "transition_to": "unregistered_user"
                     }
                 }
             ]
