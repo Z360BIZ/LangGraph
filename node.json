@@ -11,7 +11,7 @@
             "task_messages": [
                 {
                     "role": "system",
-                    "content": "Start with a warm greeting: 'Hi, this is Grace from The Center for Integrative Psychiatry. It’s great to hear from you! May I have your name, please?' Once the user provides their name, use the caller number to make an API call to determine if they’re registered or unregistered. Transition to the appropriate node based on the API response."
+                    "content": "Start with a warm greeting: 'Hi, this is Grace from The Center for Integrative Psychiatry. It’s great to hear from you! May I have your name, please?' Once the user provides their name, use the caller number to make an API call to determine if they’re registered or unregistered by calling check_registration."
                 }
             ],
             "functions": [
@@ -29,11 +29,9 @@
                                     "description": "The caller's phone number"
                                 }
                             },
-                            "required": [
-                                "caller_number"
-                            ]
+                            "required": ["caller_number"]
                         },
-                        "transition_to": "registered_user"
+                        "transition_callback": "__function__:handle_check_registration"
                     }
                 }
             ]
@@ -42,7 +40,7 @@
             "task_messages": [
                 {
                     "role": "system",
-                    "content": "You’re assisting a registered user. Use their name and details (e.g., user_name, user_email) for personalized responses. Listen to their query and determine their intent. Call the appropriate function: create_searchknowledgebase_node for business queries, create_ticket_node for issues, get_ticket_info for ticket status inquiries, create_booking_node for booking requests, create_lead_node for sales/service interest, hangup if they ask to end the call, log_technical_issue for technical problems."
+                    "content": "You’re assisting a registered user. Use their name and details (e.g., user_name, user_email) for personalized responses. Listen to their query and determine their intent. Call the appropriate function: create_searchknowledgebase_node for business queries, create_ticket_node for issues, get_ticket_info for ticket status inquiries, create_booking_node for booking requests, create_lead_node for sales/service interest, hangup if they ask to end the call, or log_technical_issue for technical problems."
                 }
             ],
             "functions": [
@@ -84,9 +82,7 @@
                                     "description": "The ID of the ticket"
                                 }
                             },
-                            "required": [
-                                "ticket_id"
-                            ]
+                            "required": ["ticket_id"]
                         }
                     }
                 },
@@ -140,225 +136,8 @@
                                     "description": "Description of the technical issue"
                                 }
                             },
-                            "required": [
-                                "log_description"
-                            ]
+                            "required": ["log_description"]
                         }
-                    }
-                }
-            ]
-        },
-        "search_knowledgebase": {
-            "task_messages": [
-                {
-                    "role": "system",
-                    "content": "Call search_knowledgebase to answer the query. Keep it short and precise. Ask if they have more questions, then return to 'registered_user'."
-                }
-            ],
-            "functions": [
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "search_knowledgebase",
-                        "handler": "__function__:search_knowledgebase",
-                        "description": "Search the knowledgebase for the user's query",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "query": {
-                                    "type": "string",
-                                    "description": "The user's query"
-                                }
-                            },
-                            "required": [
-                                "query"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "return_to_main",
-                        "description": "Return to the main registered user node",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {}
-                        },
-                        "transition_to": "registered_user"
-                    }
-                }
-            ]
-        },
-        "create_ticket": {
-            "task_messages": [
-                {
-                    "role": "system",
-                    "content": "Probe the issue, ask for subject and description, then call create_ticket. Confirm ticket creation, share the ticket ID, and ask if they have more questions. Return to 'registered_user'."
-                }
-            ],
-            "functions": [
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "create_ticket",
-                        "handler": "__function__:create_ticket",
-                        "description": "Create a ticket with subject and description",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "subject": {
-                                    "type": "string",
-                                    "description": "The subject of the ticket"
-                                },
-                                "description": {
-                                    "type": "string",
-                                    "description": "The description of the issue"
-                                }
-                            },
-                            "required": [
-                                "subject",
-                                "description"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "return_to_main",
-                        "description": "Return to the main registered user node",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {}
-                        },
-                        "transition_to": "registered_user"
-                    }
-                }
-            ]
-        },
-        "create_booking": {
-            "task_messages": [
-                {
-                    "role": "system",
-                    "content": "Ask for date, reason, and slot (start/end time if provided). Use fetch_initial_slots if no date is given, or rerequest_slots for a specific date. Confirm details, call create_booking if they agree. Ask if they have more questions, then return to 'registered_user'."
-                }
-            ],
-            "functions": [
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "fetch_initial_slots",
-                        "handler": "__function__:fetch_initial_slots",
-                        "description": "Fetch initial available slots",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {}
-                        }
-                    }
-                },
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "rerequest_slots",
-                        "handler": "__function__:rerequest_slots",
-                        "description": "List available slots for a specific date",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "start_datetime": {
-                                    "type": "string",
-                                    "description": "Start date time in 'Y-m-d H:i:s'"
-                                },
-                                "end_datetime": {
-                                    "type": "string",
-                                    "description": "End date time in 'Y-m-d H:i:s'"
-                                }
-                            },
-                            "required": [
-                                "start_datetime",
-                                "end_datetime"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "create_booking",
-                        "handler": "__function__:create_booking",
-                        "description": "Create a booking",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "purpose": {
-                                    "type": "string",
-                                    "description": "The reason for the booking"
-                                },
-                                "start_date": {
-                                    "type": "string",
-                                    "description": "The start date for the booking in 'YYYY-MM-DD HH:MM'"
-                                }
-                            },
-                            "required": [
-                                "purpose",
-                                "start_date"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "return_to_main",
-                        "description": "Return to the main registered user node",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {}
-                        },
-                        "transition_to": "registered_user"
-                    }
-                }
-            ]
-        },
-        "create_lead": {
-            "task_messages": [
-                {
-                    "role": "system",
-                    "content": "Gather primary field ID answers one by one, empathetically. Call create_lead once all fields are answered. Don’t mention lead creation. Ask if they have more questions, then return to 'registered_user'."
-                }
-            ],
-            "functions": [
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "create_lead",
-                        "handler": "__function__:create_lead",
-                        "description": "Create a lead with primary field answers",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {
-                                "primary_fields": {
-                                    "type": "string",
-                                    "description": "A string containing Primary Field ID and User Answer"
-                                }
-                            },
-                            "required": [
-                                "primary_fields"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "return_to_main",
-                        "description": "Return to the main registered user node",
-                        "parameters": {
-                            "type": "object",
-                            "properties": {}
-                        },
-                        "transition_to": "registered_user"
                     }
                 }
             ]
@@ -367,7 +146,7 @@
             "task_messages": [
                 {
                     "role": "system",
-                    "content": "You’re assisting an unregistered user. For business queries, call create_unregsearchknowledgebase_node. For restricted functions (e.g., tickets, bookings, leads), inform them they need to register and call send_sms. If they claim to have registered, call confirm_registration. Call hangup if they want to end, or log_technical_issue for problems."
+                    "content": "You’re assisting an unregistered user. For business queries, call create_unregsearchknowledgebase_node. For restricted functions (e.g., tickets, bookings, leads), say: 'That feature requires registration. Would you like to register now?' and call initiate_registration if they agree. If they claim to be registered, call confirm_registration. Call hangup if they want to end, or log_technical_issue for problems."
                 }
             ],
             "functions": [
@@ -386,20 +165,20 @@
                 {
                     "type": "function",
                     "function": {
-                        "name": "send_sms",
-                        "handler": "__function__:send_sms",
-                        "description": "Send registration form via SMS",
+                        "name": "initiate_registration",
+                        "description": "Initiate user registration process",
                         "parameters": {
                             "type": "object",
                             "properties": {}
-                        }
+                        },
+                        "transition_to": "register_user"
                     }
                 },
                 {
                     "type": "function",
                     "function": {
                         "name": "confirm_registration",
-                        "description": "Confirm if the user has registered",
+                        "description": "Re-check registration status",
                         "parameters": {
                             "type": "object",
                             "properties": {}
@@ -433,19 +212,95 @@
                                     "description": "Description of the technical issue"
                                 }
                             },
-                            "required": [
-                                "log_description"
-                            ]
+                            "required": ["log_description"]
                         }
                     }
                 }
             ]
         },
-        "unreg_search_knowledgebase": {
+        "register_user": {
             "task_messages": [
                 {
                     "role": "system",
-                    "content": "Call search_knowledgebase to answer the query. Keep it short and precise. Ask if they have more questions, then return to 'unregistered_user'."
+                    "content": "Say: 'Great! Let’s get you registered. May I have your first name, please?' Collect the user’s first name, last name, and email address one by one. Verify the email by repeating it back: 'I heard [email]. Is that correct?' Once all information is collected and verified, call register_user with the provided details."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "register_user",
+                        "handler": "__function__:register_user",
+                        "description": "Register the user with provided details",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "first_name": {
+                                    "type": "string",
+                                    "description": "User's first name"
+                                },
+                                "last_name": {
+                                    "type": "string",
+                                    "description": "User's last name"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "description": "User's email address"
+                                }
+                            },
+                            "required": ["first_name", "last_name", "email"]
+                        },
+                        "transition_callback": "__function__:handle_register_user"
+                    }
+                }
+            ]
+        },
+        "registration_failed": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Say: 'I’m sorry, there was an issue registering you—possibly due to an invalid email or system error. Would you like me to send you a registration form via SMS instead?' Call send_sms if they agree, or return_to_unregistered if they decline."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "send_sms",
+                        "handler": "__function__:send_sms",
+                        "description": "Send registration form via SMS",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "phone_number": {
+                                    "type": "string",
+                                    "description": "The user's phone number"
+                                }
+                            },
+                            "required": ["phone_number"]
+                        },
+                        "transition_to": "unregistered_user"
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_unregistered",
+                        "description": "Return to the unregistered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "unregistered_user"
+                    }
+                }
+            ]
+        },
+        "search_knowledgebase": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Call search_knowledgebase to answer the user’s query. Keep it short and precise. Ask: 'Does that answer your question? Anything else I can help with?' Then call return_to_main."
                 }
             ],
             "functions": [
@@ -463,9 +318,209 @@
                                     "description": "The user's query"
                                 }
                             },
-                            "required": [
-                                "query"
-                            ]
+                            "required": ["query"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_main",
+                        "description": "Return to the main registered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "registered_user"
+                    }
+                }
+            ]
+        },
+        "create_ticket": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Probe the issue: 'Can you tell me more about the problem?' Ask for subject and description, then call create_ticket. Confirm: 'Your ticket is created with ID [ticket_id]. Anything else I can assist with?' Then call return_to_main."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_ticket",
+                        "handler": "__function__:create_ticket",
+                        "description": "Create a ticket with subject and description",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "subject": {
+                                    "type": "string",
+                                    "description": "The subject of the ticket"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "The description of the issue"
+                                }
+                            },
+                            "required": ["subject", "description"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_main",
+                        "description": "Return to the main registered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "registered_user"
+                    }
+                }
+            ]
+        },
+        "create_booking": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Ask: 'What date would you like to book, and what’s the reason for your appointment?' Use fetch_initial_slots if no date is given, or rerequest_slots for a specific date. Confirm details: 'I have [date] for [purpose]. Does that work?' Call create_booking if they agree. Ask: 'Anything else I can help with?' Then call return_to_main."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "fetch_initial_slots",
+                        "handler": "__function__:fetch_initial_slots",
+                        "description": "Fetch initial available slots",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "rerequest_slots",
+                        "handler": "__function__:rerequest_slots",
+                        "description": "List available slots for a specific date",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "start_datetime": {
+                                    "type": "string",
+                                    "description": "Start date time in 'Y-m-d H:i:s'"
+                                },
+                                "end_datetime": {
+                                    "type": "string",
+                                    "description": "End date time in 'Y-m-d H:i:s'"
+                                }
+                            },
+                            "required": ["start_datetime", "end_datetime"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_booking",
+                        "handler": "__function__:create_booking",
+                        "description": "Create a booking",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "purpose": {
+                                    "type": "string",
+                                    "description": "The reason for the booking"
+                                },
+                                "start_date": {
+                                    "type": "string",
+                                    "description": "The start date for the booking in 'YYYY-MM-DD HH:MM'"
+                                }
+                            },
+                            "required": ["purpose", "start_date"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_main",
+                        "description": "Return to the main registered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "registered_user"
+                    }
+                }
+            ]
+        },
+        "create_lead": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Gather primary field answers empathetically: 'Can you tell me a bit about your interest?' Collect all fields one by one, then call create_lead. Say: 'Thanks for sharing! Anything else I can assist with?' Then call return_to_main."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "create_lead",
+                        "handler": "__function__:create_lead",
+                        "description": "Create a lead with primary field answers",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "primary_fields": {
+                                    "type": "string",
+                                    "description": "A string containing Primary Field ID and User Answer"
+                                }
+                            },
+                            "required": ["primary_fields"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "return_to_main",
+                        "description": "Return to the main registered user node",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {}
+                        },
+                        "transition_to": "registered_user"
+                    }
+                }
+            ]
+        },
+        "unreg_search_knowledgebase": {
+            "task_messages": [
+                {
+                    "role": "system",
+                    "content": "Call search_knowledgebase to answer the user’s query. Keep it short and precise. Ask: 'Does that answer your question? Anything else I can help with?' Then call return_to_main."
+                }
+            ],
+            "functions": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "search_knowledgebase",
+                        "handler": "__function__:search_knowledgebase",
+                        "description": "Search the knowledgebase for the user's query",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "query": {
+                                    "type": "string",
+                                    "description": "The user's query"
+                                }
+                            },
+                            "required": ["query"]
                         }
                     }
                 },
