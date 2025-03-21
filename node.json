@@ -29,9 +29,7 @@
                                     "description": "The caller's phone number"
                                 }
                             },
-                            "required": [
-                                "caller_number"
-                            ]
+                            "required": ["caller_number"]
                         },
                         "transition_callback": "__function__:handle_check_registration"
                     }
@@ -84,9 +82,7 @@
                                     "description": "The ID of the ticket"
                                 }
                             },
-                            "required": [
-                                "ticket_id"
-                            ]
+                            "required": ["ticket_id"]
                         }
                     }
                 },
@@ -128,9 +124,7 @@
                                     "description": "Description of the technical issue"
                                 }
                             },
-                            "required": [
-                                "log_description"
-                            ]
+                            "required": ["log_description"]
                         }
                     }
                 },
@@ -236,11 +230,7 @@
                                     "description": "User's email address"
                                 }
                             },
-                            "required": [
-                                "first_name",
-                                "last_name",
-                                "email"
-                            ]
+                            "required": ["first_name", "last_name", "email"]
                         },
                         "transition_callback": "__function__:handle_register_user"
                     }
@@ -269,9 +259,7 @@
                                     "description": "The user's phone number"
                                 }
                             },
-                            "required": [
-                                "phone_number"
-                            ]
+                            "required": ["phone_number"]
                         },
                         "transition_to": "unregistered_user"
                     }
@@ -312,9 +300,7 @@
                                     "description": "The user's query"
                                 }
                             },
-                            "required": [
-                                "query"
-                            ]
+                            "required": ["query"]
                         }
                     }
                 },
@@ -354,9 +340,7 @@
                                     "description": "The user's query"
                                 }
                             },
-                            "required": [
-                                "query"
-                            ]
+                            "required": ["query"]
                         }
                     }
                 },
@@ -400,10 +384,7 @@
                                     "description": "The description of the issue"
                                 }
                             },
-                            "required": [
-                                "subject",
-                                "description"
-                            ]
+                            "required": ["subject", "description"]
                         }
                     }
                 },
@@ -459,10 +440,7 @@
                                     "description": "End date time in 'Y-m-d H:i:s'"
                                 }
                             },
-                            "required": [
-                                "start_datetime",
-                                "end_datetime"
-                            ]
+                            "required": ["start_datetime", "end_datetime"]
                         }
                     }
                 },
@@ -484,10 +462,7 @@
                                     "description": "The start date for the booking in 'YYYY-MM-DD HH:MM'"
                                 }
                             },
-                            "required": [
-                                "purpose",
-                                "start_date"
-                            ]
+                            "required": ["purpose", "start_date"]
                         }
                     }
                 },
@@ -527,9 +502,7 @@
                                     "description": "A string containing Primary Field ID and User Answer"
                                 }
                             },
-                            "required": [
-                                "primary_fields"
-                            ]
+                            "required": ["primary_fields"]
                         }
                     }
                 },
